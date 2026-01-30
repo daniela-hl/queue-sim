@@ -288,7 +288,9 @@ export default function QueueResults({
                     const cumulativeQVal = qCumulatives.get(q);
 
                     // Only show q, P(q), and Cumulative for the first occurrence of each q value
-                    const showQ = n === 0 || Math.max(0, n - 1 - c) !== q;
+                    // AND only when n >= c (when queue actually exists)
+                    const prevQ = n > 0 ? Math.max(0, (n - 1) - c) : -1;
+                    const showQ = n >= c && prevQ !== q;
 
                     return (
                       <tr key={n} style={{ borderBottom: "1px solid #e5e7eb" }}>
