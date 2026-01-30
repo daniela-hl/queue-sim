@@ -356,28 +356,23 @@ export default function App() {
         K={KClamped}
       />
 
-      {/* PRIORITY CLASSES */}
-      <div style={{ padding: 18, border: "1px solid #ddd", borderRadius: 12, marginTop: 14 }}>
-        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 16 }}>
-          <h2 style={{ margin: 0, fontSize: 18 }}>Priority Classes</h2>
-          <label style={{ display: "flex", alignItems: "center", gap: 8, cursor: "pointer" }}>
-            <input
-              type="checkbox"
-              checked={usePriorities}
-              onChange={(e) => setUsePriorities(e.target.checked)}
-              style={{ cursor: "pointer" }}
-            />
-            <span style={{ fontSize: 14 }}>Enable priorities</span>
-          </label>
-        </div>
-
-        {usePriorities && queueType !== "infinite" && (
-          <div style={{ padding: 12, backgroundColor: "#fff3cd", border: "1px solid #ffc107", borderRadius: 8, color: "#856404" }}>
-            Priority classes are only available for infinite queues (M/M/c). Please select "Infinite (M/M/c)" from the Queue type dropdown above.
+      {/* PRIORITY CLASSES - Only show for infinite queues */}
+      {queueType === "infinite" && (
+        <div style={{ padding: 18, border: "1px solid #ddd", borderRadius: 12, marginTop: 14 }}>
+          <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 16 }}>
+            <h2 style={{ margin: 0, fontSize: 18 }}>Priority Classes</h2>
+            <label style={{ display: "flex", alignItems: "center", gap: 8, cursor: "pointer" }}>
+              <input
+                type="checkbox"
+                checked={usePriorities}
+                onChange={(e) => setUsePriorities(e.target.checked)}
+                style={{ cursor: "pointer" }}
+              />
+              <span style={{ fontSize: 14 }}>Enable priorities</span>
+            </label>
           </div>
-        )}
 
-        {usePriorities && queueType === "infinite" && (
+          {usePriorities && (
           <div style={{ overflowX: "auto" }}>
             <table style={{ width: "100%", borderCollapse: "collapse", fontSize: 14 }}>
               <thead>
@@ -469,7 +464,8 @@ export default function App() {
             </div>
           </div>
         )}
-      </div>
+        </div>
+      )}
         </>
       )}
     </div>
