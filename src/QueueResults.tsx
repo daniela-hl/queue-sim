@@ -287,10 +287,11 @@ export default function QueueResults({
                     const pq = qProbs.get(q);
                     const cumulativeQVal = qCumulatives.get(q);
 
-                    // Only show q, P(q), and Cumulative for the first occurrence of each q value
-                    // AND only when n >= c (when queue actually exists)
-                    const prevQ = n > 0 ? Math.max(0, (n - 1) - c) : -1;
-                    const showQ = n >= c && prevQ !== q;
+                    // Show q data when n >= c (starting from when queue can form)
+                    // Each unique q value appears once at its first occurrence
+                    const prevN = n - 1;
+                    const prevQ = prevN >= 0 ? Math.max(0, prevN - c) : -1;
+                    const showQ = n >= c && (q !== prevQ || n === c);
 
                     return (
                       <tr key={n} style={{ borderBottom: "1px solid #e5e7eb" }}>
