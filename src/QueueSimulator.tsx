@@ -154,7 +154,10 @@ export default function QueueSimulator({ timeUnit }: QueueSimulatorProps) {
 
   return (
     <div style={{ padding: 18, border: "1px solid #ddd", borderRadius: 12, marginTop: 14 }}>
-      <h2 style={{ marginTop: 0, marginBottom: 16, fontSize: 18 }}>Queue Simulator</h2>
+      <h2 style={{ marginTop: 0, marginBottom: 8, fontSize: 18 }}>Queue Simulator</h2>
+      <p style={{ marginTop: 0, marginBottom: 16, fontSize: 13, color: "#666", fontStyle: "italic" }}>
+        Designed by Daniela Hurtado-Lange for OPNS 430, Operations Department, Kellogg School of Management.
+      </p>
 
       {/* Controls */}
       <div style={{ marginBottom: 20, display: "flex", flexWrap: "wrap", gap: 12 }}>
@@ -166,8 +169,8 @@ export default function QueueSimulator({ timeUnit }: QueueSimulatorProps) {
             type="number"
             min="1"
             max="10"
-            value={numServers}
-            onChange={(e) => setNumServers(Math.min(10, Math.max(1, Number(e.target.value))))}
+            value={numServers || ""}
+            onChange={(e) => setNumServers(Math.min(10, Math.max(1, Number(e.target.value) || 1)))}
             disabled={isRunning}
             style={{ width: 80, padding: "4px 8px", borderRadius: 4, border: "1px solid #ccc" }}
           />
@@ -175,14 +178,14 @@ export default function QueueSimulator({ timeUnit }: QueueSimulatorProps) {
 
         <div>
           <label style={{ display: "block", fontSize: 14, marginBottom: 4 }}>
-            Arrival rate (λ):
+            Arrival rate (Rᵢ):
           </label>
           <input
             type="number"
             min="0.1"
             step="0.1"
-            value={arrivalRate}
-            onChange={(e) => setArrivalRate(Number(e.target.value))}
+            value={arrivalRate || ""}
+            onChange={(e) => setArrivalRate(Number(e.target.value) || 0)}
             disabled={isRunning}
             style={{ width: 80, padding: "4px 8px", borderRadius: 4, border: "1px solid #ccc" }}
           />
@@ -190,14 +193,14 @@ export default function QueueSimulator({ timeUnit }: QueueSimulatorProps) {
 
         <div>
           <label style={{ display: "block", fontSize: 14, marginBottom: 4 }}>
-            Service rate (μ):
+            Service rate (Tₚ):
           </label>
           <input
             type="number"
             min="0.1"
             step="0.1"
-            value={serviceRate}
-            onChange={(e) => setServiceRate(Number(e.target.value))}
+            value={serviceRate || ""}
+            onChange={(e) => setServiceRate(Number(e.target.value) || 0)}
             disabled={isRunning}
             style={{ width: 80, padding: "4px 8px", borderRadius: 4, border: "1px solid #ccc" }}
           />
@@ -212,8 +215,8 @@ export default function QueueSimulator({ timeUnit }: QueueSimulatorProps) {
             min="0"
             max="1"
             step="0.1"
-            value={cvArrival}
-            onChange={(e) => setCvArrival(Number(e.target.value))}
+            value={cvArrival || ""}
+            onChange={(e) => setCvArrival(Number(e.target.value) || 0)}
             disabled={isRunning}
             style={{ width: 80, padding: "4px 8px", borderRadius: 4, border: "1px solid #ccc" }}
           />
@@ -228,8 +231,8 @@ export default function QueueSimulator({ timeUnit }: QueueSimulatorProps) {
             min="0"
             max="1"
             step="0.1"
-            value={cvService}
-            onChange={(e) => setCvService(Number(e.target.value))}
+            value={cvService || ""}
+            onChange={(e) => setCvService(Number(e.target.value) || 0)}
             disabled={isRunning}
             style={{ width: 80, padding: "4px 8px", borderRadius: 4, border: "1px solid #ccc" }}
           />
@@ -244,8 +247,8 @@ export default function QueueSimulator({ timeUnit }: QueueSimulatorProps) {
             min="0.1"
             max="5"
             step="0.1"
-            value={speed}
-            onChange={(e) => setSpeed(Number(e.target.value))}
+            value={speed || ""}
+            onChange={(e) => setSpeed(Number(e.target.value) || 1)}
             style={{ width: 80, padding: "4px 8px", borderRadius: 4, border: "1px solid #ccc" }}
           />
         </div>

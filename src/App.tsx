@@ -210,7 +210,7 @@ export default function App() {
         {/* ARRIVALS */}
         <div style={{ padding: 18, border: "1px solid #ddd", borderRadius: 12 }}>
           <label style={{ display: "block", fontWeight: 600, marginBottom: 8, fontSize: 16 }}>
-            Arrival rate (λ)
+            Arrival rate (Rᵢ)
           </label>
           <input
             type="number"
@@ -243,7 +243,7 @@ export default function App() {
         {/* SERVICES */}
         <div style={{ padding: 18, border: "1px solid #ddd", borderRadius: 12 }}>
           <label style={{ display: "block", fontWeight: 600, marginBottom: 8, fontSize: 16 }}>
-            Service rate (μ)
+            Service rate (Tₚ)
           </label>
           <input
             type="number"

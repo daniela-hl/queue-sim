@@ -5,7 +5,8 @@
       "Bash(node:*)",
       "Bash(/Users/danielahurtadolange/anaconda3/bin/python:*)",
       "Bash(python3:*)",
-      "Bash(git add:*)"
+      "Bash(git add:*)",
+      "Bash(git push)"
     ]
   }
 }
