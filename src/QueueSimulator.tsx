@@ -452,27 +452,40 @@ export default function QueueSimulator({ timeUnit }: QueueSimulatorProps) {
       {/* Queue Length Over Time Chart */}
       {queueHistory.length > 1 && (
         <div style={{ marginTop: 20, border: "1px solid #ddd", borderRadius: 8, padding: 20, background: "#f9fafb" }}>
-          <h3 style={{ marginTop: 0, marginBottom: 16, fontSize: 16 }}>Queue Length Over Time</h3>
+          <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 12 }}>
+            <h3 style={{ margin: 0, fontSize: 16 }}>Queue Length Over Time</h3>
+            {/* Legend */}
+            <div style={{ display: "flex", gap: 20, fontSize: 13 }}>
+              <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
+                <div style={{ width: 20, height: 3, background: "#3b82f6" }}></div>
+                <span>Number of jobs in system (queue+service)</span>
+              </div>
+              <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
+                <div style={{ width: 20, height: 0, borderTop: "2px dashed #ef4444" }}></div>
+                <span>Average # in system</span>
+              </div>
+            </div>
+          </div>
           <div style={{ width: "100%", height: 200, position: "relative" }}>
             <svg width="100%" height="200" style={{ border: "1px solid #e5e7eb", borderRadius: 4, background: "white" }}>
               {(() => {
                 const currentTime = queueHistory[queueHistory.length - 1].time;
 
-                // Calculate rolling 30-minute window
-                // First 30 minutes: show [0, 30]
+                // Calculate rolling 35-minute window (shows 30 min of data + 5 min buffer)
+                // First 30 minutes: show [0, 35]
                 // After 30 minutes: slide window by 10 minutes every 10 minutes
-                // e.g., [10, 40], [20, 50], [30, 60], etc.
+                // e.g., [10, 45], [20, 55], [30, 65], etc.
                 let windowStart: number;
                 let windowEnd: number;
 
                 if (currentTime <= 30) {
                   windowStart = 0;
-                  windowEnd = 30;
+                  windowEnd = 35;
                 } else {
                   // After 30 minutes, slide the window
                   const intervals = Math.floor((currentTime - 30) / 10);
                   windowStart = (intervals + 1) * 10;
-                  windowEnd = windowStart + 30;
+                  windowEnd = windowStart + 35;
                 }
 
                 // Filter data to show only current window
@@ -483,7 +496,7 @@ export default function QueueSimulator({ timeUnit }: QueueSimulatorProps) {
                 const height = 180;
                 const padding = { top: 10, right: 20, bottom: 30, left: 40 };
 
-                const xScale = (time: number) => padding.left + (((time - windowStart) / 30) * (width - padding.left - padding.right));
+                const xScale = (time: number) => padding.left + (((time - windowStart) / 35) * (width - padding.left - padding.right));
                 const yScale = (queueLength: number) => height - padding.bottom - ((queueLength / maxQueue) * (height - padding.top - padding.bottom));
 
                 // X-axis ticks every 5 minutes
