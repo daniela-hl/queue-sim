@@ -238,6 +238,75 @@ export default function QueueResults({
           </div>
         </div>
       </div>
+
+      {/* PROBABILITY DISTRIBUTION TABLE (for finite queues only) */}
+      {queueType === "finite" && results && "stateProbabilities" in results && results.stateProbabilities && (
+        <div style={{ padding: 18, border: "1px solid #ddd", borderRadius: 12, marginTop: 14 }}>
+          <h2 style={{ margin: 0, marginBottom: 8, fontSize: 18 }}>Probability Distribution:</h2>
+          <div style={{ fontSize: 13, color: "#666", marginBottom: 12 }}>
+            <strong>n</strong> = total number of customers in the system
+            <br />
+            <strong>q</strong> = number of customers in the waiting line
+          </div>
+
+          <div style={{ overflowX: "auto" }}>
+            <table style={{ width: "100%", borderCollapse: "collapse", fontSize: 13 }}>
+              <thead>
+                <tr style={{ borderBottom: "2px solid #333", backgroundColor: "#f3f4f6" }}>
+                  <th style={{ padding: "8px 12px", textAlign: "center", fontWeight: 700 }}>n</th>
+                  <th style={{ padding: "8px 12px", textAlign: "center", fontWeight: 700 }}>P(n)</th>
+                  <th style={{ padding: "8px 12px", textAlign: "center", fontWeight: 700 }}>Cumulative</th>
+                  <th style={{ padding: "8px 12px", textAlign: "center", fontWeight: 700 }}>q</th>
+                  <th style={{ padding: "8px 12px", textAlign: "center", fontWeight: 700 }}>P(q)</th>
+                  <th style={{ padding: "8px 12px", textAlign: "center", fontWeight: 700 }}>Cumulative</th>
+                </tr>
+              </thead>
+              <tbody>
+                {(() => {
+                  let cumulativeN = 0;
+                  const qProbs: Map<number, number> = new Map();
+
+                  // Calculate P(q) by summing P(n) for all n that result in the same q
+                  results.stateProbabilities!.forEach((pn: number, n: number) => {
+                    const q = Math.max(0, n - c);
+                    qProbs.set(q, (qProbs.get(q) || 0) + pn);
+                  });
+
+                  // Sort q values
+                  const sortedQs = Array.from(qProbs.keys()).sort((a, b) => a - b);
+                  const qCumulatives = new Map<number, number>();
+                  let cumulativeQ = 0;
+                  sortedQs.forEach(q => {
+                    cumulativeQ += qProbs.get(q)!;
+                    qCumulatives.set(q, cumulativeQ);
+                  });
+
+                  return results.stateProbabilities!.map((pn: number, n: number) => {
+                    cumulativeN += pn;
+                    const q = Math.max(0, n - c);
+                    const pq = qProbs.get(q);
+                    const cumulativeQVal = qCumulatives.get(q);
+
+                    // Only show q, P(q), and Cumulative for the first occurrence of each q value
+                    const showQ = n === 0 || Math.max(0, n - 1 - c) !== q;
+
+                    return (
+                      <tr key={n} style={{ borderBottom: "1px solid #e5e7eb" }}>
+                        <td style={{ padding: "8px 12px", textAlign: "center" }}>{n}</td>
+                        <td style={{ padding: "8px 12px", textAlign: "center" }}>{pn.toFixed(4)}</td>
+                        <td style={{ padding: "8px 12px", textAlign: "center" }}>{cumulativeN.toFixed(4)}</td>
+                        <td style={{ padding: "8px 12px", textAlign: "center" }}>{showQ ? q : ""}</td>
+                        <td style={{ padding: "8px 12px", textAlign: "center" }}>{showQ && pq !== undefined ? pq.toFixed(4) : ""}</td>
+                        <td style={{ padding: "8px 12px", textAlign: "center" }}>{showQ && cumulativeQVal !== undefined ? cumulativeQVal.toFixed(4) : ""}</td>
+                      </tr>
+                    );
+                  });
+                })()}
+              </tbody>
+            </table>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

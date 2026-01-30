@@ -87,6 +87,8 @@ export interface FiniteQueueResult {
   T: number;
   /** Probability of more than Q customers waiting (optional) */
   P_q_gt_Q?: number;
+  /** State probabilities P(n) for n=0 to N */
+  stateProbabilities?: number[];
 }
 
 export interface InfiniteQueueResult {
@@ -203,6 +205,12 @@ export function mmckFinite({
     }
   }
 
+  // Calculate state probabilities for all states n=0 to N
+  const stateProbabilities: number[] = [];
+  for (let n = 0; n <= N; n++) {
+    stateProbabilities.push(Pn(n));
+  }
+
   const result: FiniteQueueResult = {
     R,
     RiPb,
@@ -213,6 +221,7 @@ export function mmckFinite({
     Utilization,
     I,
     T,
+    stateProbabilities,
   };
 
   if (P_q_gt_Q !== undefined) {
