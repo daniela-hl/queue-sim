@@ -1,0 +1,11 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(npm run dev:*)",
+      "Bash(node:*)",
+      "Bash(/Users/danielahurtadolange/anaconda3/bin/python:*)",
+      "Bash(python3:*)",
+      "Bash(git add:*)"
+    ]
+  }
+}
