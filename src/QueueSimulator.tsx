@@ -156,8 +156,40 @@ export default function QueueSimulator({ timeUnit }: QueueSimulatorProps) {
     <div style={{ padding: 18, border: "1px solid #ddd", borderRadius: 12, marginTop: 14 }}>
       <h2 style={{ marginTop: 0, marginBottom: 16, fontSize: 18 }}>Simulator</h2>
 
-      {/* Controls */}
-      <div style={{ marginBottom: 20, display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(180px, 1fr))", gap: 16 }}>
+      {/* Controls - First row: Arrival rate, Service rate, Servers */}
+      <div style={{ marginBottom: 12, display: "grid", gridTemplateColumns: "1fr 1fr 1fr", gap: 16 }}>
+        {/* Arrival rate */}
+        <div>
+          <label style={{ display: "block", fontSize: 14, marginBottom: 8, fontWeight: 600 }}>
+            Arrival rate (Rᵢ):
+          </label>
+          <input
+            type="number"
+            min="0.1"
+            step="0.1"
+            value={arrivalRate || ""}
+            onChange={(e) => setArrivalRate(Number(e.target.value) || 0)}
+            disabled={isRunning}
+            style={{ width: "100%", padding: "6px 10px", borderRadius: 4, border: "1px solid #ccc", fontSize: 14 }}
+          />
+        </div>
+
+        {/* Service rate */}
+        <div>
+          <label style={{ display: "block", fontSize: 14, marginBottom: 8, fontWeight: 600 }}>
+            Service rate (Tₚ):
+          </label>
+          <input
+            type="number"
+            min="0.1"
+            step="0.1"
+            value={serviceRate || ""}
+            onChange={(e) => setServiceRate(Number(e.target.value) || 0)}
+            disabled={isRunning}
+            style={{ width: "100%", padding: "6px 10px", borderRadius: 4, border: "1px solid #ccc", fontSize: 14 }}
+          />
+        </div>
+
         {/* Servers slider */}
         <div>
           <label style={{ display: "block", fontSize: 14, marginBottom: 8, fontWeight: 600 }}>
@@ -178,39 +210,10 @@ export default function QueueSimulator({ timeUnit }: QueueSimulatorProps) {
             <span>10</span>
           </div>
         </div>
+      </div>
 
-        {/* Arrival rate - keep as number input */}
-        <div>
-          <label style={{ display: "block", fontSize: 14, marginBottom: 8, fontWeight: 600 }}>
-            Arrival rate (Rᵢ):
-          </label>
-          <input
-            type="number"
-            min="0.1"
-            step="0.1"
-            value={arrivalRate || ""}
-            onChange={(e) => setArrivalRate(Number(e.target.value) || 0)}
-            disabled={isRunning}
-            style={{ width: "100%", padding: "6px 10px", borderRadius: 4, border: "1px solid #ccc", fontSize: 14 }}
-          />
-        </div>
-
-        {/* Service rate - keep as number input */}
-        <div>
-          <label style={{ display: "block", fontSize: 14, marginBottom: 8, fontWeight: 600 }}>
-            Service rate (Tₚ):
-          </label>
-          <input
-            type="number"
-            min="0.1"
-            step="0.1"
-            value={serviceRate || ""}
-            onChange={(e) => setServiceRate(Number(e.target.value) || 0)}
-            disabled={isRunning}
-            style={{ width: "100%", padding: "6px 10px", borderRadius: 4, border: "1px solid #ccc", fontSize: 14 }}
-          />
-        </div>
-
+      {/* Controls - Second row: CV arrivals, CV service */}
+      <div style={{ marginBottom: 20, display: "grid", gridTemplateColumns: "1fr 1fr 1fr", gap: 16 }}>
         {/* CV arrivals slider */}
         <div>
           <label style={{ display: "block", fontSize: 14, marginBottom: 8, fontWeight: 600 }}>
@@ -253,29 +256,12 @@ export default function QueueSimulator({ timeUnit }: QueueSimulatorProps) {
           </div>
         </div>
 
-        {/* Speed slider */}
-        <div>
-          <label style={{ display: "block", fontSize: 14, marginBottom: 8, fontWeight: 600 }}>
-            Speed: {speed.toFixed(1)}x
-          </label>
-          <input
-            type="range"
-            min="0.5"
-            max="5"
-            step="0.1"
-            value={speed}
-            onChange={(e) => setSpeed(Number(e.target.value))}
-            style={{ width: "100%", cursor: "pointer" }}
-          />
-          <div style={{ display: "flex", justifyContent: "space-between", fontSize: 11, color: "#666", marginTop: 4 }}>
-            <span>0.5x</span>
-            <span>5x</span>
-          </div>
-        </div>
+        {/* Empty third column */}
+        <div></div>
       </div>
 
-      {/* Action buttons */}
-      <div style={{ marginBottom: 20, display: "flex", gap: 8 }}>
+      {/* Action buttons and Speed control */}
+      <div style={{ marginBottom: 20, display: "flex", gap: 12, alignItems: "center" }}>
         <button
           onClick={() => setIsRunning(!isRunning)}
           style={{
@@ -303,6 +289,26 @@ export default function QueueSimulator({ timeUnit }: QueueSimulatorProps) {
         >
           Reset
         </button>
+
+        {/* Speed slider */}
+        <div style={{ flex: "0 0 250px", marginLeft: 16 }}>
+          <label style={{ display: "block", fontSize: 13, marginBottom: 4, fontWeight: 600 }}>
+            Speed: {speed.toFixed(1)}x
+          </label>
+          <input
+            type="range"
+            min="0.5"
+            max="5"
+            step="0.1"
+            value={speed}
+            onChange={(e) => setSpeed(Number(e.target.value))}
+            style={{ width: "100%", cursor: "pointer" }}
+          />
+          <div style={{ display: "flex", justifyContent: "space-between", fontSize: 10, color: "#666" }}>
+            <span>0.5x</span>
+            <span>5x</span>
+          </div>
+        </div>
       </div>
 
       {/* Stats */}
