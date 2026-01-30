@@ -87,8 +87,8 @@ export default function App() {
   return (
     <div style={{ maxWidth: 1200, margin: "40px auto", padding: "0 40px", fontFamily: "system-ui" }}>
       <h1 style={{ marginBottom: 6 }}>Queue Simulator</h1>
-      <p style={{ marginTop: 0, color: "#555" }}>
-        Set λ (arrivals), μ (service rate per server), and c (servers) to explore queue behavior.
+      <p style={{ marginTop: 0, color: "#666", fontStyle: "italic", fontSize: 14 }}>
+        Designed by Daniela Hurtado-Lange for OPNS 430, Operations Department, Kellogg School of Management.
       </p>
 
       {/* Mode Toggle */}

@@ -154,10 +154,7 @@ export default function QueueSimulator({ timeUnit }: QueueSimulatorProps) {
 
   return (
     <div style={{ padding: 18, border: "1px solid #ddd", borderRadius: 12, marginTop: 14 }}>
-      <h2 style={{ marginTop: 0, marginBottom: 8, fontSize: 18 }}>Queue Simulator</h2>
-      <p style={{ marginTop: 0, marginBottom: 16, fontSize: 13, color: "#666", fontStyle: "italic" }}>
-        Designed by Daniela Hurtado-Lange for OPNS 430, Operations Department, Kellogg School of Management.
-      </p>
+      <h2 style={{ marginTop: 0, marginBottom: 16, fontSize: 18 }}>Simulator</h2>
 
       {/* Controls */}
       <div style={{ marginBottom: 20, display: "flex", flexWrap: "wrap", gap: 12 }}>
