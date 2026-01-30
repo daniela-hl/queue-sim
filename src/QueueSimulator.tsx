@@ -157,24 +157,31 @@ export default function QueueSimulator({ timeUnit }: QueueSimulatorProps) {
       <h2 style={{ marginTop: 0, marginBottom: 16, fontSize: 18 }}>Simulator</h2>
 
       {/* Controls */}
-      <div style={{ marginBottom: 20, display: "flex", flexWrap: "wrap", gap: 12 }}>
+      <div style={{ marginBottom: 20, display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(180px, 1fr))", gap: 16 }}>
+        {/* Servers slider */}
         <div>
-          <label style={{ display: "block", fontSize: 14, marginBottom: 4 }}>
-            Servers (1-10):
+          <label style={{ display: "block", fontSize: 14, marginBottom: 8, fontWeight: 600 }}>
+            Servers (c): {numServers}
           </label>
           <input
-            type="number"
+            type="range"
             min="1"
             max="10"
-            value={numServers || ""}
-            onChange={(e) => setNumServers(Math.min(10, Math.max(1, Number(e.target.value) || 1)))}
+            step="1"
+            value={numServers}
+            onChange={(e) => setNumServers(Number(e.target.value))}
             disabled={isRunning}
-            style={{ width: 80, padding: "4px 8px", borderRadius: 4, border: "1px solid #ccc" }}
+            style={{ width: "100%", cursor: isRunning ? "not-allowed" : "pointer" }}
           />
+          <div style={{ display: "flex", justifyContent: "space-between", fontSize: 11, color: "#666", marginTop: 4 }}>
+            <span>1</span>
+            <span>10</span>
+          </div>
         </div>
 
+        {/* Arrival rate - keep as number input */}
         <div>
-          <label style={{ display: "block", fontSize: 14, marginBottom: 4 }}>
+          <label style={{ display: "block", fontSize: 14, marginBottom: 8, fontWeight: 600 }}>
             Arrival rate (Rᵢ):
           </label>
           <input
@@ -184,12 +191,13 @@ export default function QueueSimulator({ timeUnit }: QueueSimulatorProps) {
             value={arrivalRate || ""}
             onChange={(e) => setArrivalRate(Number(e.target.value) || 0)}
             disabled={isRunning}
-            style={{ width: 80, padding: "4px 8px", borderRadius: 4, border: "1px solid #ccc" }}
+            style={{ width: "100%", padding: "6px 10px", borderRadius: 4, border: "1px solid #ccc", fontSize: 14 }}
           />
         </div>
 
+        {/* Service rate - keep as number input */}
         <div>
-          <label style={{ display: "block", fontSize: 14, marginBottom: 4 }}>
+          <label style={{ display: "block", fontSize: 14, marginBottom: 8, fontWeight: 600 }}>
             Service rate (Tₚ):
           </label>
           <input
@@ -199,55 +207,70 @@ export default function QueueSimulator({ timeUnit }: QueueSimulatorProps) {
             value={serviceRate || ""}
             onChange={(e) => setServiceRate(Number(e.target.value) || 0)}
             disabled={isRunning}
-            style={{ width: 80, padding: "4px 8px", borderRadius: 4, border: "1px solid #ccc" }}
+            style={{ width: "100%", padding: "6px 10px", borderRadius: 4, border: "1px solid #ccc", fontSize: 14 }}
           />
         </div>
 
+        {/* CV arrivals slider */}
         <div>
-          <label style={{ display: "block", fontSize: 14, marginBottom: 4 }}>
-            CV arrivals (0-1):
+          <label style={{ display: "block", fontSize: 14, marginBottom: 8, fontWeight: 600 }}>
+            CV arrivals: {cvArrival.toFixed(2)}
           </label>
           <input
-            type="number"
+            type="range"
             min="0"
             max="1"
-            step="0.1"
-            value={cvArrival || ""}
-            onChange={(e) => setCvArrival(Number(e.target.value) || 0)}
+            step="0.01"
+            value={cvArrival}
+            onChange={(e) => setCvArrival(Number(e.target.value))}
             disabled={isRunning}
-            style={{ width: 80, padding: "4px 8px", borderRadius: 4, border: "1px solid #ccc" }}
+            style={{ width: "100%", cursor: isRunning ? "not-allowed" : "pointer" }}
           />
+          <div style={{ display: "flex", justifyContent: "space-between", fontSize: 11, color: "#666", marginTop: 4 }}>
+            <span>0</span>
+            <span>1</span>
+          </div>
         </div>
 
+        {/* CV service slider */}
         <div>
-          <label style={{ display: "block", fontSize: 14, marginBottom: 4 }}>
-            CV service (0-1):
+          <label style={{ display: "block", fontSize: 14, marginBottom: 8, fontWeight: 600 }}>
+            CV service: {cvService.toFixed(2)}
           </label>
           <input
-            type="number"
+            type="range"
             min="0"
             max="1"
-            step="0.1"
-            value={cvService || ""}
-            onChange={(e) => setCvService(Number(e.target.value) || 0)}
+            step="0.01"
+            value={cvService}
+            onChange={(e) => setCvService(Number(e.target.value))}
             disabled={isRunning}
-            style={{ width: 80, padding: "4px 8px", borderRadius: 4, border: "1px solid #ccc" }}
+            style={{ width: "100%", cursor: isRunning ? "not-allowed" : "pointer" }}
           />
+          <div style={{ display: "flex", justifyContent: "space-between", fontSize: 11, color: "#666", marginTop: 4 }}>
+            <span>0</span>
+            <span>1</span>
+          </div>
         </div>
 
+        {/* Speed slider */}
         <div>
-          <label style={{ display: "block", fontSize: 14, marginBottom: 4 }}>
-            Speed:
+          <label style={{ display: "block", fontSize: 14, marginBottom: 8, fontWeight: 600 }}>
+            Speed: {speed.toFixed(1)}x
           </label>
           <input
-            type="number"
-            min="0.1"
+            type="range"
+            min="0.5"
             max="5"
             step="0.1"
-            value={speed || ""}
-            onChange={(e) => setSpeed(Number(e.target.value) || 1)}
-            style={{ width: 80, padding: "4px 8px", borderRadius: 4, border: "1px solid #ccc" }}
+            value={speed}
+            onChange={(e) => setSpeed(Number(e.target.value))}
+            style={{ width: "100%", cursor: "pointer" }}
           />
+          <div style={{ display: "flex", justifyContent: "space-between", fontSize: 11, color: "#666", marginTop: 4 }}>
+            <span>0.5x</span>
+            <span>5x</span>
+          </div>
         </div>
       </div>
 
