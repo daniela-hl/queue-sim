@@ -467,7 +467,7 @@ export default function QueueSimulator({ timeUnit }: QueueSimulatorProps) {
             </div>
           </div>
           <div style={{ width: "100%", height: 200, position: "relative" }}>
-            <svg width="100%" height="200" style={{ border: "1px solid #e5e7eb", borderRadius: 4, background: "white" }}>
+            <svg width="100%" height="200" viewBox="0 0 1000 180" preserveAspectRatio="xMidYMid meet" style={{ border: "1px solid #e5e7eb", borderRadius: 4, background: "white" }}>
               {(() => {
                 const currentTime = queueHistory[queueHistory.length - 1].time;
 
@@ -494,7 +494,7 @@ export default function QueueSimulator({ timeUnit }: QueueSimulatorProps) {
                 const maxQueue = Math.max(...queueHistory.map(h => h.queueLength), 1);
                 const width = 1000; // SVG units
                 const height = 180;
-                const padding = { top: 10, right: 20, bottom: 30, left: 40 };
+                const padding = { top: 10, right: 40, bottom: 30, left: 40 };
 
                 const xScale = (time: number) => padding.left + (((time - windowStart) / 35) * (width - padding.left - padding.right));
                 const yScale = (queueLength: number) => height - padding.bottom - ((queueLength / maxQueue) * (height - padding.top - padding.bottom));
