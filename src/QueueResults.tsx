@@ -226,7 +226,7 @@ export default function QueueResults({
                 }}
                 aria-label="Queue length threshold"
               />
-              <span style={{ color: "#666" }}>wait in line:</span>
+              <span style={{ color: "#666" }}>customers wait in line:</span>
             </div>
             <div style={{ paddingLeft: 12 }}>
               <span style={{ fontWeight: 600, fontSize: 16 }}>
