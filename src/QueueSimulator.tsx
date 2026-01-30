@@ -458,9 +458,22 @@ export default function QueueSimulator({ timeUnit }: QueueSimulatorProps) {
               {(() => {
                 const currentTime = queueHistory[queueHistory.length - 1].time;
 
-                // Calculate 30-minute window: shifts every 10 minutes
-                const windowStart = Math.floor(currentTime / 10) * 10;
-                const windowEnd = windowStart + 30;
+                // Calculate rolling 30-minute window
+                // First 30 minutes: show [0, 30]
+                // After 30 minutes: slide window by 10 minutes every 10 minutes
+                // e.g., [10, 40], [20, 50], [30, 60], etc.
+                let windowStart: number;
+                let windowEnd: number;
+
+                if (currentTime <= 30) {
+                  windowStart = 0;
+                  windowEnd = 30;
+                } else {
+                  // After 30 minutes, slide the window
+                  const intervals = Math.floor((currentTime - 30) / 10);
+                  windowStart = (intervals + 1) * 10;
+                  windowEnd = windowStart + 30;
+                }
 
                 // Filter data to show only current window
                 const visibleHistory = queueHistory.filter(h => h.time >= windowStart && h.time <= windowEnd);
@@ -482,10 +495,13 @@ export default function QueueSimulator({ timeUnit }: QueueSimulatorProps) {
                 // Y-axis ticks
                 const yTicks = [0, Math.ceil(maxQueue / 2), maxQueue];
 
-                // Calculate 10-minute interval averages
+                // Calculate 10-minute interval averages for COMPLETED intervals only
                 const intervalAverages: { start: number; end: number; avgQueue: number }[] = [];
-                for (let intervalStart = 0; intervalStart < currentTime; intervalStart += 10) {
-                  const intervalEnd = intervalStart + 10;
+                const completedIntervals = Math.floor(currentTime / 10); // Only show averages for completed 10-min intervals
+
+                for (let i = 0; i < completedIntervals; i++) {
+                  const intervalStart = i * 10;
+                  const intervalEnd = (i + 1) * 10;
                   const intervalData = queueHistory.filter(h => h.time >= intervalStart && h.time < intervalEnd);
 
                   if (intervalData.length > 0) {
