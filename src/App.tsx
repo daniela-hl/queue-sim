@@ -40,7 +40,6 @@ export default function App() {
 
   // Priority classes
   const [usePriorities, setUsePriorities] = useState<boolean>(false);
-  const [numClasses, setNumClasses] = useState<number>(4);
   // Store fractions for classes 2-4; class 1 is computed as 1 - sum(others)
   const [classFractions, setClassFractions] = useState<number[]>([0, 0.8, 0, 0]);
 
@@ -390,7 +389,7 @@ export default function App() {
                 </tr>
               </thead>
               <tbody>
-                {Array.from({ length: numClasses }).map((_, idx) => {
+                {Array.from({ length: classFractions.length }).map((_, idx) => {
                   const classNum = idx + 1;
                   const classResult = priorityResults?.classes[idx];
                   const fraction = allClassFractions[idx];
