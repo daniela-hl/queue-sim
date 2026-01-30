@@ -157,9 +157,9 @@ export default function QueueSimulator({ timeUnit }: QueueSimulatorProps) {
       <h2 style={{ marginTop: 0, marginBottom: 16, fontSize: 18 }}>Simulator</h2>
 
       {/* Controls - First row: Arrival rate, Service rate, Servers */}
-      <div style={{ marginBottom: 12, display: "grid", gridTemplateColumns: "1fr 1fr 1fr", gap: 16 }}>
+      <div style={{ marginBottom: 12, display: "flex", gap: 24, alignItems: "flex-start" }}>
         {/* Arrival rate */}
-        <div>
+        <div style={{ flex: "0 0 160px" }}>
           <label style={{ display: "block", fontSize: 14, marginBottom: 8, fontWeight: 600 }}>
             Arrival rate (Rᵢ):
           </label>
@@ -175,7 +175,7 @@ export default function QueueSimulator({ timeUnit }: QueueSimulatorProps) {
         </div>
 
         {/* Service rate */}
-        <div>
+        <div style={{ flex: "0 0 160px" }}>
           <label style={{ display: "block", fontSize: 14, marginBottom: 8, fontWeight: 600 }}>
             Service rate (Tₚ):
           </label>
@@ -191,7 +191,7 @@ export default function QueueSimulator({ timeUnit }: QueueSimulatorProps) {
         </div>
 
         {/* Servers slider */}
-        <div>
+        <div style={{ flex: "1", minWidth: 200, marginLeft: 16 }}>
           <label style={{ display: "block", fontSize: 14, marginBottom: 8, fontWeight: 600 }}>
             Servers (c): {numServers}
           </label>
@@ -213,9 +213,9 @@ export default function QueueSimulator({ timeUnit }: QueueSimulatorProps) {
       </div>
 
       {/* Controls - Second row: CV arrivals, CV service */}
-      <div style={{ marginBottom: 20, display: "grid", gridTemplateColumns: "1fr 1fr 1fr", gap: 16 }}>
+      <div style={{ marginBottom: 20, display: "flex", gap: 24 }}>
         {/* CV arrivals slider */}
-        <div>
+        <div style={{ flex: "0 0 160px" }}>
           <label style={{ display: "block", fontSize: 14, marginBottom: 8, fontWeight: 600 }}>
             CV arrivals: {cvArrival.toFixed(2)}
           </label>
@@ -236,7 +236,7 @@ export default function QueueSimulator({ timeUnit }: QueueSimulatorProps) {
         </div>
 
         {/* CV service slider */}
-        <div>
+        <div style={{ flex: "0 0 160px" }}>
           <label style={{ display: "block", fontSize: 14, marginBottom: 8, fontWeight: 600 }}>
             CV service: {cvService.toFixed(2)}
           </label>
@@ -255,9 +255,6 @@ export default function QueueSimulator({ timeUnit }: QueueSimulatorProps) {
             <span>1</span>
           </div>
         </div>
-
-        {/* Empty third column */}
-        <div></div>
       </div>
 
       {/* Action buttons and Speed control */}
