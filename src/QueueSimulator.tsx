@@ -73,7 +73,9 @@ export default function QueueSimulator({ timeUnit }: QueueSimulatorProps) {
   // Simulation parameters
   const [numServers, setNumServers] = useState<number>(2);
   const [arrivalRate, setArrivalRate] = useState<number>(1);
+  const [arrivalRateStr, setArrivalRateStr] = useState<string>("1");
   const [serviceRate, setServiceRate] = useState<number>(1.5);
+  const [serviceRateStr, setServiceRateStr] = useState<string>("1.5");
   const [cvArrival, setCvArrival] = useState<number>(1);
   const [cvService, setCvService] = useState<number>(1);
 
@@ -514,11 +516,18 @@ export default function QueueSimulator({ timeUnit }: QueueSimulatorProps) {
             Arrival rate (Rᵢ):
           </label>
           <input
-            type="number"
-            min="0.1"
-            step="0.1"
-            value={arrivalRate || ""}
-            onChange={(e) => setArrivalRate(Number(e.target.value) || 0)}
+            type="text"
+            inputMode="decimal"
+            value={arrivalRateStr}
+            onChange={(e) => {
+              const raw = e.target.value;
+              if (raw === "" || raw === "." || /^[0-9]*\.?[0-9]*$/.test(raw)) {
+                setArrivalRateStr(raw);
+                const v = Number(raw);
+                if (raw !== "" && Number.isFinite(v)) setArrivalRate(v);
+                if (raw === "") setArrivalRate(0);
+              }
+            }}
             disabled={isRunning}
             style={{ width: "100%", padding: "6px 10px", borderRadius: 4, border: "1px solid #ccc", fontSize: 14 }}
           />
@@ -526,14 +535,21 @@ export default function QueueSimulator({ timeUnit }: QueueSimulatorProps) {
 
         <div style={{ flex: "0 0 160px" }}>
           <label style={{ display: "block", fontSize: 14, marginBottom: 8, fontWeight: 600 }}>
-            Service rate (Tₚ):
+            Service rate (1/Tₚ):
           </label>
           <input
-            type="number"
-            min="0.1"
-            step="0.1"
-            value={serviceRate || ""}
-            onChange={(e) => setServiceRate(Number(e.target.value) || 0)}
+            type="text"
+            inputMode="decimal"
+            value={serviceRateStr}
+            onChange={(e) => {
+              const raw = e.target.value;
+              if (raw === "" || raw === "." || /^[0-9]*\.?[0-9]*$/.test(raw)) {
+                setServiceRateStr(raw);
+                const v = Number(raw);
+                if (raw !== "" && Number.isFinite(v)) setServiceRate(v);
+                if (raw === "") setServiceRate(0);
+              }
+            }}
             disabled={isRunning}
             style={{ width: "100%", padding: "6px 10px", borderRadius: 4, border: "1px solid #ccc", fontSize: 14 }}
           />
@@ -541,7 +557,7 @@ export default function QueueSimulator({ timeUnit }: QueueSimulatorProps) {
 
         <div style={{ flex: "1", minWidth: 200, marginLeft: 16 }}>
           <label style={{ display: "block", fontSize: 14, marginBottom: 8, fontWeight: 600 }}>
-            Servers (c): {numServers}
+            Number of servers (c): {numServers}
           </label>
           <input
             type="range"

@@ -28,9 +28,11 @@ export default function App() {
 
   // Arrival rate λ (customers per chosen time unit)
   const [lambda, setLambda] = useState<number>(30);
+  const [lambdaStr, setLambdaStr] = useState<string>("30");
 
   // Service rate μ per server (customers per chosen time unit)
   const [mu, setMu] = useState<number>(60);
+  const [muStr, setMuStr] = useState<string>("60");
 
   // Number of servers c (integer)
   const [c, setC] = useState<number>(1);
@@ -213,17 +215,18 @@ export default function App() {
             Arrival rate (Rᵢ)
           </label>
           <input
-            type="number"
-            min="0"
-            step="any"
-            value={lambda || ""}
+            type="text"
+            inputMode="decimal"
+            value={lambdaStr}
             placeholder="0"
             onChange={(e) => {
               const raw = e.target.value;
-              if (raw === "") return setLambda(0);
-              const v = Number(raw);
-              if (!Number.isFinite(v)) return;
-              setLambda(v);
+              if (raw === "" || raw === "." || /^[0-9]*\.?[0-9]*$/.test(raw)) {
+                setLambdaStr(raw);
+                const v = Number(raw);
+                if (raw !== "" && Number.isFinite(v)) setLambda(v);
+                if (raw === "") setLambda(0);
+              }
             }}
             style={{
               width: "100%",
@@ -243,20 +246,21 @@ export default function App() {
         {/* SERVICES */}
         <div style={{ padding: 18, border: "1px solid #ddd", borderRadius: 12 }}>
           <label style={{ display: "block", fontWeight: 600, marginBottom: 8, fontSize: 16 }}>
-            Service rate (Tₚ)
+            Service rate (1/Tₚ)
           </label>
           <input
-            type="number"
-            min="0"
-            step="any"
-            value={mu || ""}
+            type="text"
+            inputMode="decimal"
+            value={muStr}
             placeholder="0"
             onChange={(e) => {
               const raw = e.target.value;
-              if (raw === "") return setMu(0);
-              const v = Number(raw);
-              if (!Number.isFinite(v)) return;
-              setMu(v);
+              if (raw === "" || raw === "." || /^[0-9]*\.?[0-9]*$/.test(raw)) {
+                setMuStr(raw);
+                const v = Number(raw);
+                if (raw !== "" && Number.isFinite(v)) setMu(v);
+                if (raw === "") setMu(0);
+              }
             }}
             style={{
               width: "100%",
