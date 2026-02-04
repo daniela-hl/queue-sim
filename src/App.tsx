@@ -387,8 +387,8 @@ export default function App() {
                 <tr style={{ borderBottom: "2px solid #333" }}>
                   <th style={{ padding: "8px 12px", textAlign: "left", fontWeight: 700 }}>Class</th>
                   <th style={{ padding: "8px 12px", textAlign: "center", fontWeight: 700 }}>Percentage</th>
-                  <th style={{ padding: "8px 12px", textAlign: "center", fontWeight: 700 }}>Ii (k)</th>
-                  <th style={{ padding: "8px 12px", textAlign: "center", fontWeight: 700 }}>Ti (k)</th>
+                  <th style={{ padding: "8px 12px", textAlign: "center", fontWeight: 700 }}>Average # customers waiting</th>
+                  <th style={{ padding: "8px 12px", textAlign: "center", fontWeight: 700 }}>Average time waiting</th>
                 </tr>
               </thead>
               <tbody>
