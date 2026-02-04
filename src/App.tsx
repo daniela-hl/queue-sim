@@ -36,9 +36,11 @@ export default function App() {
 
   // Number of servers c (integer)
   const [c, setC] = useState<number>(1);
+  const [cStr, setCStr] = useState<string>("1");
 
   // Queue capacity K (only for finite queues)
   const [K, setK] = useState<number>(5);
+  const [KStr, setKStr] = useState<string>("5");
 
   // Priority classes
   const [usePriorities, setUsePriorities] = useState<boolean>(false);
@@ -283,20 +285,21 @@ export default function App() {
             Number of servers (c)
           </label>
           <input
-            type="number"
-            min="1"
-            step="1"
-            value={c || ""}
+            type="text"
+            inputMode="numeric"
+            value={cStr}
             placeholder="1"
             onChange={(e) => {
               const raw = e.target.value;
-              if (raw === "") return setC(0);
-              const v = Number(raw);
-              if (!Number.isFinite(v)) return;
-              setC(v);
+              if (raw === "" || /^[0-9]*$/.test(raw)) {
+                setCStr(raw);
+                const v = Number(raw);
+                if (raw !== "" && Number.isFinite(v)) setC(v);
+                if (raw === "") setC(0);
+              }
             }}
             onBlur={() => {
-              if (c < 1) setC(1);
+              if (c < 1) { setC(1); setCStr("1"); }
             }}
             style={{
               width: "100%",
@@ -321,17 +324,18 @@ export default function App() {
             Queue Capacity (K)
           </label>
           <input
-            type="number"
-            min="0"
-            step="1"
-            value={K || ""}
+            type="text"
+            inputMode="numeric"
+            value={KStr}
             placeholder="0"
             onChange={(e) => {
               const raw = e.target.value;
-              if (raw === "") return setK(0);
-              const v = Number(raw);
-              if (!Number.isFinite(v)) return;
-              setK(v);
+              if (raw === "" || /^[0-9]*$/.test(raw)) {
+                setKStr(raw);
+                const v = Number(raw);
+                if (raw !== "" && Number.isFinite(v)) setK(v);
+                if (raw === "") setK(0);
+              }
             }}
             style={{
               width: "100%",
@@ -408,24 +412,24 @@ export default function App() {
                         ) : (
                           // Classes 2-4: editable
                           <input
-                            type="number"
-                            min="0"
-                            max="100"
-                            step="1"
+                            type="text"
+                            inputMode="numeric"
                             value={classFractions[idx] > 0 ? (classFractions[idx] * 100).toFixed(0) : ""}
                             placeholder="0"
                             onChange={(e) => {
                               const raw = e.target.value;
-                              const newFractions = [...classFractions];
-                              if (raw === "") {
-                                newFractions[idx] = 0;
-                              } else {
-                                const v = Number(raw);
-                                if (Number.isFinite(v) && v >= 0 && v <= 100) {
-                                  newFractions[idx] = v / 100; // Convert percentage to fraction
+                              if (raw === "" || /^[0-9]*$/.test(raw)) {
+                                const newFractions = [...classFractions];
+                                if (raw === "") {
+                                  newFractions[idx] = 0;
+                                } else {
+                                  const v = Number(raw);
+                                  if (Number.isFinite(v) && v >= 0 && v <= 100) {
+                                    newFractions[idx] = v / 100; // Convert percentage to fraction
+                                  }
                                 }
+                                setClassFractions(newFractions);
                               }
-                              setClassFractions(newFractions);
                             }}
                             style={{
                               width: 80,

@@ -28,6 +28,7 @@ export default function QueueResults({
   const [t, setT] = useState<number>(0);
   const [tStr, setTStr] = useState<string>("0");
   const [Q, setQ] = useState<number>(0);
+  const [QStr, setQStr] = useState<string>("0");
 
   const rho = useMemo(() => {
     if (mu <= 0 || c <= 0) return Infinity;
@@ -208,16 +209,17 @@ export default function QueueResults({
             <div style={{ marginBottom: 6, display: "flex", alignItems: "center", gap: 8, flexWrap: "wrap" }}>
               <span style={{ color: "#666" }}>Probability that more than</span>
               <input
-                type="number"
-                min="0"
-                step="1"
-                value={Q || ""}
+                type="text"
+                inputMode="numeric"
+                value={QStr}
                 onChange={(e) => {
                   const raw = e.target.value;
-                  if (raw === "") return setQ(0);
-                  const v = Number(raw);
-                  if (!Number.isFinite(v) || v < 0) return;
-                  setQ(Math.round(v));
+                  if (raw === "" || /^[0-9]*$/.test(raw)) {
+                    setQStr(raw);
+                    const v = Number(raw);
+                    if (raw !== "" && Number.isFinite(v) && v >= 0) setQ(v);
+                    if (raw === "") setQ(0);
+                  }
                 }}
                 style={{
                   width: 80,
