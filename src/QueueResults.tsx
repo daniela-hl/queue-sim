@@ -26,6 +26,7 @@ export default function QueueResults({
 }: QueueResultsProps) {
   // State for probability threshold parameters
   const [t, setT] = useState<number>(0);
+  const [tStr, setTStr] = useState<string>("0");
   const [Q, setQ] = useState<number>(0);
 
   const rho = useMemo(() => {
@@ -169,16 +170,17 @@ export default function QueueResults({
               <div style={{ marginBottom: 6, display: "flex", alignItems: "center", gap: 8, flexWrap: "wrap" }}>
                 <span style={{ color: "#666" }}>Probability that a customer waits more than</span>
                 <input
-                  type="number"
-                  min="0"
-                  step="any"
-                  value={t || ""}
+                  type="text"
+                  inputMode="decimal"
+                  value={tStr}
                   onChange={(e) => {
                     const raw = e.target.value;
-                    if (raw === "") return setT(0);
-                    const v = Number(raw);
-                    if (!Number.isFinite(v) || v < 0) return;
-                    setT(v);
+                    if (raw === "" || raw === "." || /^[0-9]*\.?[0-9]*$/.test(raw)) {
+                      setTStr(raw);
+                      const v = Number(raw);
+                      if (raw !== "" && Number.isFinite(v) && v >= 0) setT(v);
+                      if (raw === "") setT(0);
+                    }
                   }}
                   style={{
                     width: 80,
