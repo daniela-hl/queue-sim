@@ -170,19 +170,18 @@ export default function QueueSimulator({ timeUnit }: QueueSimulatorProps) {
       while (nextArrivalTime.current <= newTime + walkTime) {
         const arrivalTime = nextArrivalTime.current;
 
-        // Only create if this arrival time doesn't already have a dog
-        const existingDog = arrivingDogsRef.current.find(d => Math.abs(d.arrivalTime - arrivalTime) < 0.01);
-        if (!existingDog) {
-          const colors = generateDogColors();
-          const newDog: ArrivingDog = {
-            id: nextCustomerId.current++,
-            startTime: Math.max(0, arrivalTime - walkTime),
-            arrivalTime: arrivalTime,
-            collarColor: colors.collarColor,
-            furColor: colors.furColor,
-          };
-          arrivingDogsRef.current.push(newDog);
-        }
+        // Each generated arrival time is unique (nextArrivalTime advances
+        // monotonically and params are locked while running), so create a dog
+        // for every one — no de-dup, which previously discarded close arrivals.
+        const colors = generateDogColors();
+        const newDog: ArrivingDog = {
+          id: nextCustomerId.current++,
+          startTime: Math.max(0, arrivalTime - walkTime),
+          arrivalTime: arrivalTime,
+          collarColor: colors.collarColor,
+          furColor: colors.furColor,
+        };
+        arrivingDogsRef.current.push(newDog);
 
         const interarrivalTime = generateRandomTime(1 / arrivalRate, cvArrival);
         nextArrivalTime.current += interarrivalTime;
@@ -206,24 +205,48 @@ export default function QueueSimulator({ timeUnit }: QueueSimulatorProps) {
       }
 
       let completions = 0;
+      const servers = serversRef.current;
+      const queue = queueRef.current;
 
-      // Check for completed service
-      for (let i = 0; i < serversRef.current.length; i++) {
-        const customer = serversRef.current[i];
-        if (customer && customer.endServiceTime && newTime >= customer.endServiceTime) {
-          completions++;
-          serversRef.current[i] = null;
+      // Time each server is free to start its next job: a busy server frees up
+      // when its current job ends; an idle server is free immediately (0).
+      const freeAt = servers.map(c =>
+        c && c.endServiceTime != null ? c.endServiceTime : 0
+      );
+
+      // Process completions and new service starts in chronological order *within*
+      // this tick. A tick (0.1 * speed) can be much longer than a single service
+      // time, so one server may finish several customers before the clock reaches
+      // newTime. Loop until no further progress is possible — this removes the old
+      // "one completion per server per tick" throughput cap that throttled the
+      // server far below its service rate and made the queue appear to explode.
+      let didWork = true;
+      while (didWork) {
+        didWork = false;
+
+        // Complete any job that has finished by newTime.
+        for (let i = 0; i < servers.length; i++) {
+          const customer = servers[i];
+          if (customer && customer.endServiceTime != null && newTime >= customer.endServiceTime) {
+            completions++;
+            freeAt[i] = customer.endServiceTime; // free from the instant the job ended
+            servers[i] = null;
+            didWork = true;
+          }
         }
-      }
 
-      // Assign waiting customers to free servers
-      for (let i = 0; i < serversRef.current.length && queueRef.current.length > 0; i++) {
-        if (serversRef.current[i] === null) {
-          const customer = queueRef.current.shift()!;
-          customer.startServiceTime = newTime;
-          customer.endServiceTime = newTime + customer.serviceTime;
-          customer.serverId = i;
-          serversRef.current[i] = customer;
+        // Pull waiting customers onto free servers, starting service at the moment
+        // the server actually became free (not at newTime) so a backlog can drain.
+        for (let i = 0; i < servers.length && queue.length > 0; i++) {
+          if (servers[i] === null && freeAt[i] <= newTime) {
+            const customer = queue.shift()!;
+            const start = Math.max(freeAt[i], customer.arrivalTime);
+            customer.startServiceTime = start;
+            customer.endServiceTime = start + customer.serviceTime;
+            customer.serverId = i;
+            servers[i] = customer;
+            didWork = true; // may finish within this same tick → re-checked above
+          }
         }
       }
 
