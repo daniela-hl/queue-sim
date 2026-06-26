@@ -99,16 +99,49 @@ export default function QueueSimulator({ timeUnit }: QueueSimulatorProps) {
   const serversRef = useRef<(Customer | null)[]>(Array(numServers).fill(null));
   const arrivingDogsRef = useRef<ArrivingDog[]>([]);
 
-  const generateRandomTime = (mean: number, cv: number): number => {
-    if (cv === 0) {
-      return mean;
-    } else if (cv === 1) {
-      return -Math.log(1 - Math.random()) * mean;
-    } else {
-      const deterministic = mean;
-      const exponential = -Math.log(1 - Math.random()) * mean;
-      return deterministic * (1 - cv) + exponential * cv;
+  // Standard normal via Box–Muller (used by the gamma sampler below).
+  const sampleStandardNormal = (): number => {
+    const u1 = Math.random() || Number.MIN_VALUE;
+    const u2 = Math.random();
+    return Math.sqrt(-2 * Math.log(u1)) * Math.cos(2 * Math.PI * u2);
+  };
+
+  // Sample a Gamma(shape, scale) variate. Marsaglia–Tsang for shape >= 1; for
+  // shape < 1 use the boost identity Gamma(k) = Gamma(k+1) * U^(1/k).
+  const sampleGamma = (shape: number, scale: number): number => {
+    if (shape < 1) {
+      const u = Math.random() || Number.MIN_VALUE;
+      return sampleGamma(shape + 1, scale) * Math.pow(u, 1 / shape);
     }
+    const d = shape - 1 / 3;
+    const c = 1 / Math.sqrt(9 * d);
+    for (;;) {
+      let x: number, v: number;
+      do {
+        x = sampleStandardNormal();
+        v = 1 + c * x;
+      } while (v <= 0);
+      v = v * v * v;
+      const u = Math.random() || Number.MIN_VALUE;
+      if (u < 1 - 0.0331 * x * x * x * x) return d * v * scale;
+      if (Math.log(u) < 0.5 * x * x + d * (1 - v + Math.log(v))) return d * v * scale;
+    }
+  };
+
+  // Inter-arrival / service time with a given mean and coefficient of variation.
+  // Modeled as a Gamma whose shape k = 1/cv^2 and scale = mean*cv^2, so the mean
+  // is exactly `mean` and the CV is exactly `cv`:
+  //   cv = 0  -> deterministic (fixed) times
+  //   cv < 1  -> more regular than exponential (Erlang-like)
+  //   cv = 1  -> exponential (M/M/c)
+  //   cv > 1  -> burstier / more variable than exponential
+  const generateRandomTime = (mean: number, cv: number): number => {
+    if (cv <= 0) {
+      return mean;
+    }
+    const shape = 1 / (cv * cv);
+    const scale = mean * cv * cv;
+    return sampleGamma(shape, scale);
   };
 
   const generateDogColors = (): { collarColor: string; furColor: string } => {
@@ -608,7 +641,7 @@ export default function QueueSimulator({ timeUnit }: QueueSimulatorProps) {
           <input
             type="range"
             min="0"
-            max="1"
+            max="2"
             step="0.01"
             value={cvArrival}
             onChange={(e) => setCvArrival(Number(e.target.value))}
@@ -618,6 +651,7 @@ export default function QueueSimulator({ timeUnit }: QueueSimulatorProps) {
           <div style={{ display: "flex", justifyContent: "space-between", fontSize: 11, color: "#666", marginTop: 4 }}>
             <span>0</span>
             <span>1</span>
+            <span>2</span>
           </div>
         </div>
 
@@ -628,7 +662,7 @@ export default function QueueSimulator({ timeUnit }: QueueSimulatorProps) {
           <input
             type="range"
             min="0"
-            max="1"
+            max="2"
             step="0.01"
             value={cvService}
             onChange={(e) => setCvService(Number(e.target.value))}
@@ -638,6 +672,7 @@ export default function QueueSimulator({ timeUnit }: QueueSimulatorProps) {
           <div style={{ display: "flex", justifyContent: "space-between", fontSize: 11, color: "#666", marginTop: 4 }}>
             <span>0</span>
             <span>1</span>
+            <span>2</span>
           </div>
         </div>
       </div>
@@ -1024,8 +1059,10 @@ export default function QueueSimulator({ timeUnit }: QueueSimulatorProps) {
 
       {/* Info */}
       <div style={{ marginTop: 12, fontSize: 13, color: "#666" }}>
-        <strong>Note:</strong> CV (Coefficient of Variation) controls randomness.
-        CV=0 means deterministic (fixed) times, CV=1 means exponential distribution (M/M/c).
+        <strong>Note:</strong> CV (Coefficient of Variation) controls randomness, modeled as a
+        gamma distribution. CV=0 means deterministic (fixed) times, CV&lt;1 is more regular than
+        exponential, CV=1 means exponential distribution (M/M/c), and CV&gt;1 is burstier / more
+        variable than exponential.
       </div>
     </div>
   );
