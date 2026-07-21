@@ -2,22 +2,11 @@ import { useMemo, useState } from "react";
 import QueueResults from "./QueueResults";
 import QueueSimulator from "./QueueSimulator";
 import { mmcPriority } from "./queueModel";
+import { TIME_UNITS, fmtNum, singular, type TimeUnit } from "./timeUnits";
+import { OutputUnitsButton, OutputUnitsPocket } from "./OutputUnits";
+import { useOutputUnits } from "./useOutputUnits";
 
-type TimeUnit = "seconds" | "minutes" | "hours" | "days" | "weeks" | "months" | "years";
 type QueueType = "infinite" | "finite";
-
-const TIME_UNITS: TimeUnit[] = [
-  "seconds",
-  "minutes",
-  "hours",
-  "days",
-  "weeks",
-  "months",
-  "years",
-];
-
-
-
 
 type ViewMode = "computations" | "simulator";
 
@@ -86,7 +75,10 @@ export default function App() {
   }, [usePriorities, queueType, isUnstable, cClamped, lambdaClamped, muClamped, allClassFractions]);
 
   // Convert plural time unit to singular (e.g., "minutes" -> "minute")
-  const singularUnit = unit.endsWith('s') ? unit.slice(0, -1) : unit;
+  const singularUnit = singular(unit);
+
+  // Output units for the priority table's waiting-time column.
+  const priorityOu = useOutputUnits(unit);
 
   return (
     <div style={{ maxWidth: 1200, margin: "40px auto", padding: "0 40px", fontFamily: "system-ui" }}>
@@ -381,7 +373,12 @@ export default function App() {
           </div>
 
           {usePriorities && (
-          <div style={{ overflowX: "auto" }}>
+          <div>
+            <div style={{ display: "flex", justifyContent: "flex-end", marginBottom: 12 }}>
+              <OutputUnitsButton state={priorityOu} />
+            </div>
+            <OutputUnitsPocket state={priorityOu} />
+            <div style={{ overflowX: "auto" }}>
             <table style={{ width: "100%", borderCollapse: "collapse", fontSize: 14 }}>
               <thead>
                 <tr style={{ borderBottom: "2px solid #333" }}>
@@ -448,6 +445,11 @@ export default function App() {
                       </td>
                       <td style={{ padding: "8px 12px", textAlign: "center", fontWeight: 600 }}>
                         {classResult ? classResult.Ti_k.toFixed(4) : "0.0000"}
+                        {classResult && priorityOu.showAltUnit && (
+                          <div style={{ color: "#2563eb" }}>
+                            = {fmtNum(priorityOu.toTime(classResult.Ti_k))} {priorityOu.outputUnit}
+                          </div>
+                        )}
                       </td>
                     </tr>
                   );
@@ -468,7 +470,9 @@ export default function App() {
               </tbody>
             </table>
             <div style={{ marginTop: 8, fontSize: 13, color: "#666" }}>
-              Note: Priority class 1 has highest priority. Class 1 fraction is computed as 100% minus the sum of other classes. Ti(k) is in {unit}.
+              Note: Priority class 1 has highest priority. Class 1 fraction is computed as 100% minus the sum of other classes. Ti(k) is in {unit}
+              {priorityOu.showAltUnit && <> (and {priorityOu.outputUnit}, shown in blue)</>}.
+            </div>
             </div>
           </div>
         )}

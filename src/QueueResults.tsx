@@ -1,5 +1,8 @@
 import { useMemo, useState } from "react";
 import { mmcInfinite, mmckFinite, type InfiniteQueueResult, type FiniteQueueResult } from "./queueModel";
+import { TIME_UNITS, convertTime, fmtNum, type TimeUnit } from "./timeUnits";
+import { OutputUnitsButton, OutputUnitsPocket } from "./OutputUnits";
+import { useOutputUnits } from "./useOutputUnits";
 
 interface QueueResultsProps {
   /** Number of servers */
@@ -8,8 +11,8 @@ interface QueueResultsProps {
   lambda: number;
   /** Service rate per server (customers per time unit) */
   mu: number;
-  /** Time unit for display */
-  timeUnit: string;
+  /** Time unit of the inputs (arrival/service rates) */
+  timeUnit: TimeUnit;
   /** Queue type: 'infinite' or 'finite' */
   queueType: "infinite" | "finite";
   /** Queue capacity (only for finite queues) */
@@ -29,6 +32,15 @@ export default function QueueResults({
   const [tStr, setTStr] = useState<string>("0");
   const [Q, setQ] = useState<number>(0);
   const [QStr, setQStr] = useState<string>("0");
+
+  // Time unit for the "waits more than t" threshold (defaults to input unit)
+  const [tUnit, setTUnit] = useState<TimeUnit>(timeUnit);
+
+  // Output units: optionally re-express time-valued metrics in another unit.
+  const ou = useOutputUnits(timeUnit);
+
+  // The threshold t is entered in tUnit; the model expects it in the input unit.
+  const tInInputUnit = convertTime(t, tUnit, timeUnit, ou.hoursPerDay);
 
   const rho = useMemo(() => {
     if (mu <= 0 || c <= 0) return Infinity;
@@ -57,14 +69,14 @@ export default function QueueResults({
           arrivalRate: lambda,
           serviceRate: mu,
           Q,
-          t,
+          t: tInInputUnit,
         });
       }
     } catch (error) {
       console.error("Queue calculation error:", error);
       return null;
     }
-  }, [c, K, lambda, mu, queueType, isUnstable, Q, t]);
+  }, [c, K, lambda, mu, queueType, isUnstable, Q, tInInputUnit]);
 
   if (!results) {
     return (
@@ -83,11 +95,44 @@ export default function QueueResults({
   const finiteResults = isFinite ? (results as FiniteQueueResult) : null;
   const infiniteResults = !isFinite ? (results as InfiniteQueueResult) : null;
 
+  // Render a time-valued metric in the input unit, and (when a different output
+  // unit is selected) also in that unit.
+  const timeValue = (v: number) => (
+    <>
+      <span style={{ fontWeight: 600, fontSize: 16 }}>{v.toFixed(2)} {timeUnit}</span>
+      {ou.showAltUnit && (
+        <span style={{ fontWeight: 600, fontSize: 16, color: "#2563eb" }}>
+          {" = "}{fmtNum(ou.toTime(v))} {ou.outputUnit}
+        </span>
+      )}
+    </>
+  );
+
+  // Render a rate-valued metric (customers per unit time).
+  const rateValue = (v: number) => (
+    <>
+      <span style={{ fontWeight: 600, fontSize: 16 }}>{v.toFixed(2)} / {timeUnit}</span>
+      {ou.showAltUnit && (
+        <span style={{ fontWeight: 600, fontSize: 16, color: "#2563eb" }}>
+          {" = "}{fmtNum(ou.toRate(v))} / {ou.outputUnit}
+        </span>
+      )}
+    </>
+  );
+
   return (
     <div style={{ padding: 18, border: "1px solid #ddd", borderRadius: 12, marginTop: 14 }}>
-      <h2 style={{ marginTop: 0, marginBottom: 16, fontSize: 18 }}>
-        Performance Metrics
-      </h2>
+      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", gap: 12, marginBottom: 16, flexWrap: "wrap" }}>
+        <h2 style={{ margin: 0, fontSize: 18 }}>
+          Performance Metrics
+        </h2>
+        <OutputUnitsButton state={ou} />
+      </div>
+
+      <OutputUnitsPocket
+        state={ou}
+        hoursHint="(use 8 for a working day; affects day/week/month/year conversions, including the threshold below)"
+      />
 
       {/* Whole System */}
       <div style={{ marginBottom: 14 }}>
@@ -99,7 +144,7 @@ export default function QueueResults({
           </div>
           <div>
             <span style={{ color: "#666" }}>Average time in system: </span>
-            <span style={{ fontWeight: 600, fontSize: 16 }}>{results.T.toFixed(2)} {timeUnit}</span>
+            {timeValue(results.T)}
           </div>
         </div>
       </div>
@@ -114,7 +159,7 @@ export default function QueueResults({
           </div>
           <div>
             <span style={{ color: "#666" }}>Average time waiting: </span>
-            <span style={{ fontWeight: 600, fontSize: 16 }}>{results.Ti.toFixed(2)} {timeUnit}</span>
+            {timeValue(results.Ti)}
           </div>
           {infiniteResults && (
             <div>
@@ -151,11 +196,11 @@ export default function QueueResults({
             </div>
             <div>
               <span style={{ color: "#666" }}>Average effective arrival rate: </span>
-              <span style={{ fontWeight: 600, fontSize: 16 }}>{finiteResults.R.toFixed(2)} / {timeUnit}</span>
+              {rateValue(finiteResults.R)}
             </div>
             <div>
               <span style={{ color: "#666" }}>Average balking rate: </span>
-              <span style={{ fontWeight: 600, fontSize: 16 }}>{finiteResults.RiPb.toFixed(2)} / {timeUnit}</span>
+              {rateValue(finiteResults.RiPb)}
             </div>
           </div>
         </div>
@@ -192,7 +237,25 @@ export default function QueueResults({
                   }}
                   aria-label="Time threshold"
                 />
-                <span style={{ color: "#666" }}>{timeUnit}:</span>
+                <select
+                  value={tUnit}
+                  onChange={(e) => setTUnit(e.target.value as TimeUnit)}
+                  style={{
+                    padding: "4px 8px",
+                    border: "1px solid #ccc",
+                    borderRadius: 6,
+                    fontSize: 14,
+                    background: "white",
+                  }}
+                  aria-label="Threshold time unit"
+                >
+                  {TIME_UNITS.map((u) => (
+                    <option key={u} value={u}>
+                      {u}
+                    </option>
+                  ))}
+                </select>
+                <span style={{ color: "#666" }}>:</span>
               </div>
               <div style={{ paddingLeft: 12 }}>
                 <span style={{ fontWeight: 600, fontSize: 16 }}>
